@@ -119,7 +119,7 @@ const createInputWithValue = (value, row, column, type = 'text') => {
 
 	input.setAttribute('type', type);
 	if (type === 'number') {
-
+            input.setAttribute('step', '0.0000000000000001');
 	}
 	input.setAttribute('required', 'true');
 	input.dataset.row = row;
