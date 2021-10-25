@@ -4,18 +4,18 @@ const stepButton      = document.createElement('button');
 stepButton.id = 'next-step-button';
 stepButton.innerHTML = 'Next step';
 
-// const initTableContent = [
-// 	['', '1', 'x1', 'x2'],
-// 	['q', '', '', ''],
-// ];
-
 const initTableContent = [
-	['',   '1',  'x1', 'x2'],
-	['q',  '0',  '-1',  '-3'],
-	['x3', '1',  '-1',  '1'],
-	['x4', '-6', '2',   '-4'],
-	['x5', '16', '1',   '2'],
+	['', '1', 'x1', 'x2'],
+	['q', '', '', ''],
 ];
+
+// const initTableContent = [
+// 	['',   '1',  'x1', 'x2'],
+// 	['q',  '0',  '-1',  '-3'],
+// 	['x3', '1',  '-1',  '1'],
+// 	['x4', '-6', '2',   '-4'],
+// 	['x5', '16', '1',   '2'],
+// ];
 
 const solveSteps = [];
 
@@ -119,7 +119,7 @@ const createInputWithValue = (value, row, column, type = 'text') => {
 
 	input.setAttribute('type', type);
 	if (type === 'number') {
-		
+
 	}
 	input.setAttribute('required', 'true');
 	input.dataset.row = row;
