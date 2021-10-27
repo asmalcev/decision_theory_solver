@@ -4,18 +4,18 @@ const stepButton      = document.createElement('button');
 stepButton.id = 'next-step-button';
 stepButton.innerHTML = 'Next step';
 
-const initTableContent = [
-	['', '1', 'x1', 'x2'],
-	['q', '', '', ''],
-];
-
 // const initTableContent = [
-// 	['',   '1',  'x1', 'x2'],
-// 	['q',  '0',  '-1',  '-3'],
-// 	['x3', '1',  '-1',  '1'],
-// 	['x4', '-6', '2',   '-4'],
-// 	['x5', '16', '1',   '2'],
+// 	['', '1', 'x1', 'x2'],
+// 	['q', '', '', ''],
 // ];
+
+const initTableContent = [
+	['',   '1',  'x1', 'x2'],
+	['q',  '0',  '-1',  '-3'],
+	['x3', '1',  '-1',  '1'],
+	['x4', '-6', '2',   '-4'],
+	['x5', '16', '1',   '2'],
+];
 
 const solveSteps = [];
 
@@ -52,10 +52,10 @@ const generateTable = (tableContent, initial = false) => {
 				} else if (
 					initial && cellIndex !== 0
 				) {
-					cell.appendChild( createInputWithValue(data, rowIndex, cellIndex, 'number') );
+					cell.appendChild( createInputWithValue(data, rowIndex, cellIndex, 'number', 0) );
 
 				} else {
-					cell.innerHTML = data;
+					cell.innerHTML = String(data).slice(0, 8);
 				}
 
 				row.appendChild( cell );
@@ -114,14 +114,15 @@ const updateCell = e => {
 	initTableContent[e.target.dataset.row][e.target.dataset.column] = e.target.value;
 }
 
-const createInputWithValue = (value, row, column, type = 'text') => {
+const createInputWithValue = (value, row, column, type = 'text', placeholder = 'x') => {
 	const input = document.createElement('input');
 
 	input.setAttribute('type', type);
 	if (type === 'number') {
-            input.setAttribute('step', '0.0000000000000001');
+		input.setAttribute('step', '0.0000000000000001');
 	}
 	input.setAttribute('required', 'true');
+	input.setAttribute('placeholder', placeholder);
 	input.dataset.row = row;
 	input.dataset.column = column;
 
@@ -137,7 +138,11 @@ tableContainer.addEventListener('submit', e => {
 
 	tableContainer.innerHTML = '';
 	outputContainer.appendChild( stepButton );
-	outputContainer.appendChild( generateTable(initTableContent) );
+
+	const stepTable = generateTable(initTableContent);
+	stepTable.classList.add('step0');
+	stepTable.classList.add('main');
+	outputContainer.insertBefore( stepTable, stepButton );
 
 	solveSteps.push({
 		step: 0,
@@ -164,6 +169,45 @@ const loadInitTable = () => {
 loadInitTable();
 
 const parseIntFromTH = thString => Number.parseInt(thString.match(/\d+/)[0]);
+
+const highlightRowBasis = (htmlTable, basisIndex) => {
+	htmlTable.children[basisIndex].children[0].classList.add('basis');
+
+	const isLastRow = htmlTable.children.length - 1 === basisIndex;
+
+	const rowTop = htmlTable.children[basisIndex];
+	const rowBottom = (
+		isLastRow ?
+			rowTop :
+			htmlTable.children[basisIndex + 1]
+	);
+
+	const rowBottomCSSClass = isLastRow ? 'row-basis-bottom' : 'row-basis-top';
+
+	for (let index = 0; index < rowTop.children.length; index++) {
+		rowTop.children[index].classList.add('row-basis-top', 'basis');
+		rowBottom.children[index].classList.add(rowBottomCSSClass);
+	}
+}
+
+const highlightColumnBasis = (htmlTable, basisIndex) => {
+	htmlTable.children[0].children[basisIndex].classList.add('basis');
+
+	const isLastColumn = htmlTable.children[0].children.length - 1 === basisIndex;
+
+	const columnRightIndex = (
+		isLastColumn ?
+			basisIndex :
+			basisIndex + 1
+	);
+
+	const columnRightCSSClass = isLastColumn ? 'column-basis-right' : 'column-basis-left';
+
+	for (let index = 0; index < htmlTable.children.length; index++) {
+		htmlTable.children[index].children[basisIndex].classList.add('column-basis-left', 'basis');
+		htmlTable.children[index].children[columnRightIndex].classList.add(columnRightCSSClass);
+	}
+}
 
 const countNextStep = () => {
 	const htmlTables = document.querySelectorAll('table');
@@ -211,7 +255,7 @@ const countNextStep = () => {
 			columnBasis = columnBasis.index;
 		}
 
-		lastHtmlTable.children[0].children[columnBasis].setAttribute('style', 'color:red');
+		highlightColumnBasis(lastHtmlTable, columnBasis);
 
 		//
 		// Find row basis
@@ -268,7 +312,7 @@ const countNextStep = () => {
 			rowBasis = rowBasis.index;
 		}
 
-		lastHtmlTable.children[rowBasis].children[0].setAttribute('style', 'color:red');
+		highlightRowBasis(lastHtmlTable, rowBasis);
 
 		lastStep.basis = {
 			row: rowBasis,
@@ -313,7 +357,10 @@ const countNextStep = () => {
 		}
 
 		nextStep.table = tmpTable;
-		outputContainer.appendChild( generateTable(tmpTable) );
+		const stepTable = generateTable(tmpTable);
+		stepTable.classList.add(`step${nextStep.step}`);
+		stepTable.classList.add('secondary');
+		outputContainer.insertBefore( stepTable, stepButton );
 		
 		solveSteps.push( nextStep );
 
@@ -347,11 +394,16 @@ const countNextStep = () => {
 		tmpTable[0][lastStep.basis.column] = tmp;
 
 		nextStep.table = tmpTable;
-		outputContainer.appendChild( generateTable(tmpTable) );
+		const stepTable = generateTable(tmpTable);
+		stepTable.classList.add(`step${nextStep.step}`);
+		stepTable.classList.add('main');
+		outputContainer.insertBefore( stepTable, stepButton );
 		
 		solveSteps.push( nextStep );
 
 	}
+
+	window.scrollTo(0, document.body.scrollHeight);
 }
 
 stepButton.addEventListener('click', countNextStep);

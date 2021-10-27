@@ -1,17 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;600&display=swap');
+
+:root {
+	--black: #000;
+	--white: #F5F5F5;
+
+	--table: linear-gradient(var(--black), #5E35B1);
+	--abs-btn: #5E35B1;
+	--abs-btn-glowing: #5E35B166;
+
+	--bdrs: 4px;
+
+	--basis: #26C6DA;
+}
+
 * {
 	margin: 0;
 	padding: 0;
 
-	color: #333;
+	color: var(--white);
+	font-family: 'Roboto', sans-serif;
+}
+
+body {
+	background-color: var(--black);
+}
+
+button {
+	cursor: pointer;
+
+	padding: 0.5rem 1rem;
+	background-color: var(--black);
+	border: none;
+	border-radius: var(--bdrs);
+	box-shadow: 0 0 10px #0004;
+
+	font-size: 1.1rem;
+}
+
+button:hover,
+button:focus,
+table tr:not(:last-child) button:hover,
+table tr:not(:last-child) button:focus {
+	outline: 1px solid var(--white);
 }
 
 table {
-	border: 1px solid #333;
+	--border-width: 1px;
+	--font-size: 1.3rem;
+
+	margin-bottom: 2rem;
+	border-spacing: 0;
+
+	font-weight: bold;
+}
+
+table tr {
+	position: relative;
+}
+
+table tr:not(:last-child) button {
+	position: absolute;
+	right: -10rem;
+	top: 50%;
+
+	border: 1px solid var(--abs-btn);
+	box-shadow: 0 0 10px var(--abs-btn-glowing);
+
+	transform: translateY(-50%);
+}
+
+table tr:last-child button {
+	margin-top: 1rem;
 }
 
 table th,
 table td {
-	border: 1px solid #333;
+	padding: 0.5rem;
+	min-width: 100px;
 
-	padding: 1rem;
+	font-size: var(--font-size);
+}
+
+table th:empty,
+table td:empty {
+	visibility: hidden;
+}
+
+table tr:not(:first-child) th,
+table tr:not(:first-child) td {
+	border-top: var(--border-width) solid var(--white);
+}
+
+table tr th:not(:first-child),
+table tr td:not(:first-child) {
+	border-left: var(--border-width) solid var(--white);
+}
+
+table input[type=text],
+table input[type=number] {
+	width: 120px;
+	padding: 12px;
+	background-color: transparent;
+	border: none;
+	border-radius: var(--bdrs);
+	outline: none;
+
+	font-size: var(--font-size);
+	font-weight: bold;
+}
+
+table input[type=text]:focus,
+table input[type=number]:focus,
+table input[type=text]:hover,
+table input[type=number]:hover {
+	outline: thin solid var(--white);
+}
+
+table input[type=text]::placeholder,
+table input[type=number]::placeholder {
+	color: #fff8;
+}
+
+.wrapper {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+}
+
+#init-table-container,
+#output-container {
+	max-width: 100%;
+	margin: 2rem;
+	padding: 2rem;
+	background: var(--table);
+	border-radius: 24px;
+	box-shadow: inset 0 -5px 20px #000b;
+}
+
+#init-table-container:empty,
+#output-container:empty {
+	display: none;
+}
+
+.basis {
+	background: #0004;
+	color: var(--basis);
+}
+
+.row-basis-top {
+	border-top: 2px solid var(--basis) !important;
+}
+
+.row-basis-bottom {
+	border-bottom: 2px solid var(--basis) !important;
+}
+
+.column-basis-left {
+	border-left: 2px solid var(--basis) !important;
+}
+
+.column-basis-right {
+	border-right: 2px solid var(--basis) !important;
 }
