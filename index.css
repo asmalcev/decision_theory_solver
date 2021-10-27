@@ -13,9 +13,15 @@
 	--basis: #26C6DA;
 }
 
+::selection {
+	color: var(--black);
+	background-color: var(--basis);
+}
+
 * {
 	margin: 0;
 	padding: 0;
+	box-sizing: border-box;
 
 	color: var(--white);
 	font-family: 'Roboto', sans-serif;
@@ -65,6 +71,7 @@ button:focus {
 	--border-width: 1px;
 	--font-size: 1.3rem;
 
+	position: relative;
 	display: grid;
 	grid-template-columns: repeat(4, minmax(6rem, 1fr));
 
@@ -102,7 +109,7 @@ button:focus {
 
 .grid-table input[type=text],
 .grid-table input[type=number] {
-	width: 6rem;
+	width: 8rem;
 	max-width: 70%;
 	padding: 12px;
 	background-color: transparent;
@@ -166,6 +173,77 @@ button:focus {
 
 .column-basis-right {
 	border-right: 2px solid var(--basis) !important;
+}
+
+.grid-table:nth-of-type(n + 2) {
+	margin-top: 6rem;
+}
+
+.grid-table::before {
+	position: absolute;
+	top: -4rem;
+	left: 50%;
+
+	padding: 1rem 2rem;
+	background: #0004;
+	border-radius: var(--bdrs);
+
+	font-size: 1.4rem;
+	text-align: center;
+
+	transform: translateX(-50%);
+}
+
+.secondary:not(:last-of-type)::before {
+	content: '+';
+}
+
+.main:nth-of-type(n + 2)::before {
+	content: '=';
+}
+
+.secondary:last-of-type::before {
+	content: 'Table of additions';
+	width: 100%;
+}
+
+.negative-row::before {
+	content: 'Append negative row';
+	width: 100%;
+}
+
+.fractional-row::before {
+	content: 'Append fractional row';
+	width: 100%;
+}
+
+a.portfolio {
+	display: block;
+
+	padding: 0.5rem;
+
+	text-align: center;
+	text-decoration: none;
+}
+
+#output-container button {
+	margin-right: 1rem;
+}
+
+#output-container p {
+	text-align: center;
+	font-size: 1.2rem;
+}
+
+.message--container {
+	display: grid;
+	grid-template-areas: 'p p' '. .';
+	gap: 0.5rem;
+}
+
+.message--container p {
+	grid-area: p;
+	justify-self: center;	
 }
 
 @media (max-width: 1000px) {

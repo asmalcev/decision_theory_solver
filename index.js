@@ -19,6 +19,13 @@ const initTableContent = [
 // 	['x5', '16', '1',   '2'],
 // ];
 
+// const initTableContent = [
+// 	['',   '1',  'x1', 'x2'],
+// 	['q',  '0',  '-3',  '-1'],
+// 	['x3', '2',  '-1',  '2'],
+// 	['x4', '4',  '1',  '-1'],
+// ];
+
 const solveSteps = [];
 
 const generateTable = (tableContent, initial = false) => {
@@ -339,13 +346,13 @@ const countNextStep = () => {
 			if (index === columnBasis || index === 0) {
 				return value;
 			} else {
-				return value / lambda;
+				return safeDivide(value, lambda);
 			}
 		});
 
 		for (let index = 1; index < tmpTable.length; index++) {
 			if (index !== rowBasis) {
-				tmpTable[index][columnBasis] = tmpTable[index][columnBasis] / -lambda;
+				tmpTable[index][columnBasis] = safeDivide(tmpTable[index][columnBasis], -lambda);
 			}
 		}
 
@@ -403,9 +410,191 @@ const countNextStep = () => {
 		
 		solveSteps.push( nextStep );
 
+		checkTable();
 	}
 
 	window.scrollTo(0, document.body.scrollHeight);
 }
 
+const checkTable = () => {
+	const lastStep = solveSteps[solveSteps.length - 1];
+
+	let notNegative = true;
+	let areInt = true;
+
+	for (let index = 1; index < ELEMS_IN_ROW; index++) {
+		const element = lastStep.table[1][index];
+		if (element < 0) {
+			notNegative = false;
+		}
+		if (Math.round(element) !== element) {
+			areInt = false;
+		}
+	}
+
+	for (let index = 2; index < lastStep.table.length; index++) {
+		const element = lastStep.table[index][1];
+		if (element < 0) {
+			notNegative = false;
+		}
+		if (Math.round(element) !== element) {
+			areInt = false;
+		}
+	}
+
+	if (notNegative) {
+		if (areInt) {
+			const message = document.createElement('p');
+			message.innerHTML = 'Time to check if the conditions are met';
+
+			const yesButton = document.createElement('button');
+			yesButton.innerHTML = 'Solution finished';
+			yesButton.addEventListener('click', e => {
+				clearMessage(e);
+				solutionFinished(e);
+			});
+
+			const notButton = document.createElement('button');
+			notButton.innerHTML = 'Need to add a row';
+			notButton.addEventListener('click', e => {
+				clearMessage(e);
+				appendNegativeRow(e);
+			});
+
+			const messageContainer = document.createElement('div');
+			messageContainer.classList.add('message--container');
+
+			messageContainer.appendChild(message);
+			messageContainer.appendChild(yesButton);
+			messageContainer.appendChild(notButton);
+
+			outputContainer.insertBefore( messageContainer, stepButton );
+
+			stepButton.hidden = true;
+		} else {
+			appendFractionalRow();
+		}
+	}
+}
+
 stepButton.addEventListener('click', countNextStep);
+
+const clearMessage = e => {
+	e.target.parentNode.remove();
+}
+
+const solutionFinished = () => {
+	const message = document.createElement('p');
+	message.innerHTML = 'Congratulations!';
+
+	outputContainer.insertBefore( message, stepButton );
+}
+
+const appendNegativeRow = () => {
+	const lastStep = solveSteps[solveSteps.length - 1];
+
+	const nextStep = {
+		secondary: false,
+		step: lastStep.step + 1,
+		basis: {
+			row: null,
+			column: null
+		},
+
+		table: lastStep.table.map( arr => arr.slice() ),
+	}
+
+	let maximumIndex = -1;
+
+	for (let index = 1; index < nextStep.table[0].length; index++) {
+		const indexValue = parseIntFromTH(nextStep.table[0][index]);
+		if (indexValue > maximumIndex) {
+			maximumIndex = indexValue;
+		}
+	}
+
+	for (let index = 2; index < nextStep.table.length; index++) {
+		const indexValue = parseIntFromTH(nextStep.table[index][0]);
+		if (indexValue > maximumIndex) {
+			maximumIndex = indexValue;
+		}
+	}
+
+	nextStep.table.push([`x${maximumIndex + 1}`, -1, -1, -1]);
+
+	const stepTable = generateTable(nextStep.table);
+	stepTable.classList.add(`step${nextStep.step}`);
+	stepTable.classList.add('negative-row');
+	outputContainer.insertBefore( stepTable, stepButton );
+
+	solveSteps.push( nextStep );
+
+	stepButton.hidden = false;
+}
+
+const appendFractionalRow = () => {
+	const lastStep = solveSteps[solveSteps.length - 1];
+
+	const nextStep = {
+		secondary: false,
+		step: lastStep.step + 1,
+		basis: {
+			row: null,
+			column: null
+		},
+
+		table: lastStep.table.map( arr => arr.slice() ),
+	}
+
+	let maximumIndex = -1;
+
+	for (let index = 1; index < nextStep.table[0].length; index++) {
+		const indexValue = parseIntFromTH(nextStep.table[0][index]);
+		if (indexValue > maximumIndex) {
+			maximumIndex = indexValue;
+		}
+	}
+
+	let rows = [];
+
+	for (let index = 2; index < nextStep.table.length; index++) {
+		const indexValue = parseIntFromTH(nextStep.table[index][0]);
+		
+		rows.push({
+			index: index,
+			Xindex: indexValue,
+			zeros: nextStep.table[index].filter(element => element === 0)
+		});
+
+		if (indexValue > maximumIndex) {
+			maximumIndex = indexValue;
+		}
+	}
+
+	rows = rows.filter(element => element.zeros.length === 0);
+	rows.sort((element1, element2) => element1.Xindex - element2.Xindex);
+
+	nextStep.table.push(
+		[`x${maximumIndex + 1}`]
+			.concat(
+				nextStep.table[rows[0].index].slice(1).map(element => Math.floor(element) - element)
+			)
+	);
+
+	const stepTable = generateTable(nextStep.table);
+	stepTable.classList.add(`step${nextStep.step}`);
+	stepTable.classList.add('fractional-row');
+	outputContainer.insertBefore( stepTable, stepButton );
+
+	solveSteps.push( nextStep );
+}
+
+const rotateFractional = number => 1 / number;
+
+const safeDivide = (number1, number2) => {
+	if (Math.abs(number2) < 1) {
+		return number1 * rotateFractional(number2);
+	} else {
+		return number1 / number2;
+	}
+}
