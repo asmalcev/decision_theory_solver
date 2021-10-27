@@ -38,27 +38,19 @@ button {
 }
 
 button:hover,
-button:focus,
-table tr:not(:last-child) button:hover,
-table tr:not(:last-child) button:focus {
+button:focus {
 	outline: 1px solid var(--white);
 }
 
-table {
-	--border-width: 1px;
-	--font-size: 1.3rem;
-
-	margin-bottom: 2rem;
-	border-spacing: 0;
-
-	font-weight: bold;
+.create-button {
+	margin-top: 1rem;
 }
 
-table tr {
-	position: relative;
+.create-button--container {
+	grid-column: span 4;
 }
 
-table tr:not(:last-child) button {
+.delete-button {
 	position: absolute;
 	right: -10rem;
 	top: 50%;
@@ -69,36 +61,49 @@ table tr:not(:last-child) button {
 	transform: translateY(-50%);
 }
 
-table tr:last-child button {
-	margin-top: 1rem;
+.grid-table {
+	--border-width: 1px;
+	--font-size: 1.3rem;
+
+	display: grid;
+	grid-template-columns: repeat(4, minmax(6rem, 1fr));
+
+	margin-bottom: 2rem;
+
+	font-weight: bold;
 }
 
-table th,
-table td {
-	padding: 0.5rem;
-	min-width: 100px;
+.grid-table .headcell,
+.grid-table .cell {
+	position: relative;
 
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	padding: 0.5rem;
 	font-size: var(--font-size);
 }
 
-table th:empty,
-table td:empty {
-	visibility: hidden;
+#output-container .grid-table .headcell,
+#output-container .grid-table .cell {
+	padding: 1rem 0.5rem;
 }
 
-table tr:not(:first-child) th,
-table tr:not(:first-child) td {
+.grid-table .headcell:nth-of-type(n + 5),
+.grid-table .cell:nth-of-type(n + 5) {
 	border-top: var(--border-width) solid var(--white);
 }
 
-table tr th:not(:first-child),
-table tr td:not(:first-child) {
+.grid-table .headcell:not(:nth-of-type(4n + 1)),
+.grid-table .cell:not(:nth-of-type(4n + 1)) {
 	border-left: var(--border-width) solid var(--white);
 }
 
-table input[type=text],
-table input[type=number] {
-	width: 120px;
+.grid-table input[type=text],
+.grid-table input[type=number] {
+	width: 6rem;
+	max-width: 70%;
 	padding: 12px;
 	background-color: transparent;
 	border: none;
@@ -109,15 +114,15 @@ table input[type=number] {
 	font-weight: bold;
 }
 
-table input[type=text]:focus,
-table input[type=number]:focus,
-table input[type=text]:hover,
-table input[type=number]:hover {
+.grid-table input[type=text]:focus,
+.grid-table input[type=number]:focus,
+.grid-table input[type=text]:hover,
+.grid-table input[type=number]:hover {
 	outline: thin solid var(--white);
 }
 
-table input[type=text]::placeholder,
-table input[type=number]::placeholder {
+.grid-table input[type=text]::placeholder,
+.grid-table input[type=number]::placeholder {
 	color: #fff8;
 }
 
@@ -161,4 +166,39 @@ table input[type=number]::placeholder {
 
 .column-basis-right {
 	border-right: 2px solid var(--basis) !important;
+}
+
+@media (max-width: 1000px) {
+	#init-table-container,
+	#output-container {
+		width: 100%;
+		margin: 0;
+		margin-bottom: 2rem;
+	}
+
+	#init-table-container {
+		padding-right: 7rem;
+	}
+
+	.delete-button {
+		right: -6.5rem;
+	}
+}
+
+@media (max-width: 600px) {
+	html {
+		font-size: 14px;
+	}
+}
+
+@media (max-width: 500px) {
+	html {
+		font-size: 11px;
+	}
+}
+
+@media (max-width: 380px) {
+	html {
+		font-size: 10px;
+	}
 }

@@ -4,45 +4,46 @@ const stepButton      = document.createElement('button');
 stepButton.id = 'next-step-button';
 stepButton.innerHTML = 'Next step';
 
-// const initTableContent = [
-// 	['', '1', 'x1', 'x2'],
-// 	['q', '', '', ''],
-// ];
+const ELEMS_IN_ROW = 4;
 
 const initTableContent = [
-	['',   '1',  'x1', 'x2'],
-	['q',  '0',  '-1',  '-3'],
-	['x3', '1',  '-1',  '1'],
-	['x4', '-6', '2',   '-4'],
-	['x5', '16', '1',   '2'],
+	['', '1', 'x1', 'x2'],
+	['q', '', '', ''],
 ];
+
+// const initTableContent = [
+// 	['',   '1',  'x1', 'x2'],
+// 	['q',  '0',  '-1',  '-3'],
+// 	['x3', '1',  '-1',  '1'],
+// 	['x4', '-6', '2',   '-4'],
+// 	['x5', '16', '1',   '2'],
+// ];
 
 const solveSteps = [];
 
 const generateTable = (tableContent, initial = false) => {
-	const table = document.createElement('table');
+	const table = document.createElement('div');
+	table.classList.add('grid-table');
 
 	for (const rowIndex in tableContent) {
 		if (rowIndex == 0) {
-			const row = document.createElement('tr');
 
 			tableContent[rowIndex].forEach((data, cellIndex) => {
-				const cell = document.createElement('th');
+				const cell = document.createElement('div');
+				cell.classList.add('headcell');
 
 				if (initial && cellIndex > 1) {
 					cell.appendChild( createInputWithValue(data, rowIndex, cellIndex) );
 				} else {
 					cell.innerHTML = cellIndex > 1 ? `-${data}` : data;
 				}
-				row.appendChild( cell );
+				table.appendChild( cell );
 			});
 
-			table.appendChild( row );
 		} else {
-			const row = document.createElement('tr');
-
 			tableContent[rowIndex].forEach((data, cellIndex) => {
-				const cell = cellIndex === 0 ? document.createElement('th') : document.createElement('td');
+				const cell = document.createElement('div');
+				cell.classList.add(cellIndex === 0 ? 'headcell' : 'cell');
 
 				if (
 					initial && rowIndex != 1 && cellIndex === 0
@@ -58,7 +59,7 @@ const generateTable = (tableContent, initial = false) => {
 					cell.innerHTML = String(data).slice(0, 8);
 				}
 
-				row.appendChild( cell );
+				table.appendChild( cell );
 			});
 
 			if (initial && rowIndex > 1) {
@@ -72,16 +73,12 @@ const generateTable = (tableContent, initial = false) => {
 					deleteRow(rowIndex);
 				});
 				
-				row.appendChild(deleteButton);
+				table.children[table.children.length - 1].appendChild(deleteButton);
 			}
-
-			table.appendChild( row );
 		}
 	}
 
 	if (initial) {
-		const row = document.createElement('tr');
-
 		const createButton = document.createElement('button');
 		createButton.classList.add('create-button');
 		createButton.innerHTML = 'Add new row';
@@ -92,9 +89,11 @@ const generateTable = (tableContent, initial = false) => {
 			addRow();
 		});
 
-		row.appendChild(createButton);
+		const createButtonContainer = document.createElement('div');
+		createButtonContainer.classList.add('create-button--container');
+		createButtonContainer.appendChild( createButton );
 
-		table.appendChild( row );
+		table.appendChild( createButtonContainer );
 	}
 
 	return table;
@@ -171,29 +170,32 @@ loadInitTable();
 const parseIntFromTH = thString => Number.parseInt(thString.match(/\d+/)[0]);
 
 const highlightRowBasis = (htmlTable, basisIndex) => {
-	htmlTable.children[basisIndex].children[0].classList.add('basis');
+	htmlTable.children[basisIndex * ELEMS_IN_ROW].classList.add('basis');
 
-	const isLastRow = htmlTable.children.length - 1 === basisIndex;
+	const rowsInTable = Math.round(htmlTable.children.length / ELEMS_IN_ROW);
+	const isLastRow = rowsInTable - 1 === basisIndex;
 
-	const rowTop = htmlTable.children[basisIndex];
-	const rowBottom = (
+	const rowTopIndex = basisIndex;
+	const rowBottomIndex = (
 		isLastRow ?
-			rowTop :
-			htmlTable.children[basisIndex + 1]
+			basisIndex :
+			basisIndex + 1
 	);
 
 	const rowBottomCSSClass = isLastRow ? 'row-basis-bottom' : 'row-basis-top';
 
-	for (let index = 0; index < rowTop.children.length; index++) {
-		rowTop.children[index].classList.add('row-basis-top', 'basis');
-		rowBottom.children[index].classList.add(rowBottomCSSClass);
+	for (let index = 0; index < ELEMS_IN_ROW; index++) {
+		htmlTable.children[index + rowTopIndex * ELEMS_IN_ROW].classList.add('row-basis-top', 'basis');
+		htmlTable.children[index + rowBottomIndex * ELEMS_IN_ROW].classList.add(rowBottomCSSClass);
 	}
 }
 
 const highlightColumnBasis = (htmlTable, basisIndex) => {
-	htmlTable.children[0].children[basisIndex].classList.add('basis');
+	htmlTable.children[basisIndex].classList.add('basis');
 
-	const isLastColumn = htmlTable.children[0].children.length - 1 === basisIndex;
+	const rowsInTable = Math.round(htmlTable.children.length / ELEMS_IN_ROW);
+
+	const isLastColumn = ELEMS_IN_ROW - 1 === basisIndex;
 
 	const columnRightIndex = (
 		isLastColumn ?
@@ -203,14 +205,14 @@ const highlightColumnBasis = (htmlTable, basisIndex) => {
 
 	const columnRightCSSClass = isLastColumn ? 'column-basis-right' : 'column-basis-left';
 
-	for (let index = 0; index < htmlTable.children.length; index++) {
-		htmlTable.children[index].children[basisIndex].classList.add('column-basis-left', 'basis');
-		htmlTable.children[index].children[columnRightIndex].classList.add(columnRightCSSClass);
+	for (let index = 0; index < rowsInTable; index++) {
+		htmlTable.children[index * ELEMS_IN_ROW + basisIndex].classList.add('column-basis-left', 'basis');
+		htmlTable.children[index * ELEMS_IN_ROW + columnRightIndex].classList.add(columnRightCSSClass);
 	}
 }
 
 const countNextStep = () => {
-	const htmlTables = document.querySelectorAll('table');
+	const htmlTables = document.querySelectorAll('.grid-table');
 	const lastHtmlTable = htmlTables[htmlTables.length - 1];
 
 	const lastStep = solveSteps[solveSteps.length - 1];
