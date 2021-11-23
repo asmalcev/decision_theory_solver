@@ -1,0 +1,29 @@
+{
+	"name": "decision_theory_equation_solver",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"dev": "webpack -w"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/qzerrty/decision_theory_equation_solver.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/qzerrty/decision_theory_equation_solver/issues"
+	},
+	"homepage": "https://github.com/qzerrty/decision_theory_equation_solver#readme",
+	"devDependencies": {
+		"css-loader": "^6.5.1",
+		"mini-css-extract-plugin": "^2.4.5",
+		"webpack": "^5.64.2",
+		"webpack-cli": "^4.9.1"
+	},
+	"dependencies": {
+		"fraction.js": "^4.1.2"
+	}
+}

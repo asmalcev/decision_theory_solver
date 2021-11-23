@@ -246,6 +246,30 @@ a.portfolio {
 	justify-self: center;	
 }
 
+.menu {
+	padding: 2rem;
+}
+
+.menu li {
+	list-style: none;
+}
+
+.menu li a {
+	cursor: pointer;
+	display: block;
+
+	padding: 1rem;
+
+	font-size: 1.2rem;
+	text-decoration: none;
+
+	transition: 0.3s background-color;
+}
+
+.menu li a:hover {
+	background-color: #fff2;
+}
+
 @media (max-width: 1000px) {
 	#init-table-container,
 	#output-container {

@@ -1,3 +1,10 @@
+import {
+	Fraction,
+	tableToFraction,
+	fractionTableToStrings
+} from './_fraction';
+import { initTableContent, generateTable } from './table';
+
 const tableContainer  = document.querySelector('#init-table-container');
 const outputContainer = document.querySelector('#output-container');
 const stepButton      = document.createElement('button');
@@ -6,138 +13,7 @@ stepButton.innerHTML = 'Next step';
 
 const ELEMS_IN_ROW = 4;
 
-const initTableContent = [
-	['', '1', 'x1', 'x2'],
-	['q', '', '', ''],
-];
-
-// const initTableContent = [
-// 	['',   '1',  'x1', 'x2'],
-// 	['q',  '0',  '-1',  '-3'],
-// 	['x3', '1',  '-1',  '1'],
-// 	['x4', '-6', '2',   '-4'],
-// 	['x5', '16', '1',   '2'],
-// ];
-
-// const initTableContent = [
-// 	['',   '1',  'x1', 'x2'],
-// 	['q',  '0',  '-3',  '-1'],
-// 	['x3', '2',  '-1',  '2'],
-// 	['x4', '4',  '1',  '-1'],
-// ];
-
 const solveSteps = [];
-
-const generateTable = (tableContent, initial = false) => {
-	const table = document.createElement('div');
-	table.classList.add('grid-table');
-
-	for (const rowIndex in tableContent) {
-		if (rowIndex == 0) {
-
-			tableContent[rowIndex].forEach((data, cellIndex) => {
-				const cell = document.createElement('div');
-				cell.classList.add('headcell');
-
-				if (initial && cellIndex > 1) {
-					cell.appendChild( createInputWithValue(data, rowIndex, cellIndex) );
-				} else {
-					cell.innerHTML = cellIndex > 1 ? `-${data}` : data;
-				}
-				table.appendChild( cell );
-			});
-
-		} else {
-			tableContent[rowIndex].forEach((data, cellIndex) => {
-				const cell = document.createElement('div');
-				cell.classList.add(cellIndex === 0 ? 'headcell' : 'cell');
-
-				if (
-					initial && rowIndex != 1 && cellIndex === 0
-				) {
-					cell.appendChild( createInputWithValue(data, rowIndex, cellIndex) );
-
-				} else if (
-					initial && cellIndex !== 0
-				) {
-					cell.appendChild( createInputWithValue(data, rowIndex, cellIndex, 'number', 0) );
-
-				} else {
-					cell.innerHTML = String(data).slice(0, 8);
-				}
-
-				table.appendChild( cell );
-			});
-
-			if (initial && rowIndex > 1) {
-				const deleteButton = document.createElement('button');
-				deleteButton.classList.add('delete-button');
-				deleteButton.innerHTML = 'Delete';
-
-				deleteButton.addEventListener('click', e => {
-					e.preventDefault();
-
-					deleteRow(rowIndex);
-				});
-				
-				table.children[table.children.length - 1].appendChild(deleteButton);
-			}
-		}
-	}
-
-	if (initial) {
-		const createButton = document.createElement('button');
-		createButton.classList.add('create-button');
-		createButton.innerHTML = 'Add new row';
-
-		createButton.addEventListener('click', e => {
-			e.preventDefault();
-
-			addRow();
-		});
-
-		const createButtonContainer = document.createElement('div');
-		createButtonContainer.classList.add('create-button--container');
-		createButtonContainer.appendChild( createButton );
-
-		table.appendChild( createButtonContainer );
-	}
-
-	return table;
-}
-
-const deleteRow = index => {
-	delete initTableContent[index];
-	loadInitTable();
-}
-
-const addRow = () => {
-	initTableContent.push(['', '', '', '']);
-	loadInitTable();
-}
-
-const updateCell = e => {
-	initTableContent[e.target.dataset.row][e.target.dataset.column] = e.target.value;
-}
-
-const createInputWithValue = (value, row, column, type = 'text', placeholder = 'x') => {
-	const input = document.createElement('input');
-
-	input.setAttribute('type', type);
-	if (type === 'number') {
-		input.setAttribute('step', '0.0000000000000001');
-	}
-	input.setAttribute('required', 'true');
-	input.setAttribute('placeholder', placeholder);
-	input.dataset.row = row;
-	input.dataset.column = column;
-
-	input.addEventListener('input', updateCell);
-
-	input.value = value;
-
-	return input;
-}
 
 tableContainer.addEventListener('submit', e => {
 	e.preventDefault();
@@ -145,7 +21,9 @@ tableContainer.addEventListener('submit', e => {
 	tableContainer.innerHTML = '';
 	outputContainer.appendChild( stepButton );
 
-	const stepTable = generateTable(initTableContent);
+	tableToFraction(initTableContent);
+
+	const stepTable = generateTable( fractionTableToStrings(initTableContent) );
 	stepTable.classList.add('step0');
 	stepTable.classList.add('main');
 	outputContainer.insertBefore( stepTable, stepButton );
@@ -232,10 +110,10 @@ const countNextStep = () => {
 		const row = lastStep.table[1];
 		const rowElements = row.map(
 			(value, index) => {
-				return { value: Number.parseFloat(value), index: index};
+				return { value: value, index: index };
 			}
 		).slice(2);
-		const negativeElementsRow = rowElements.filter( obj => obj.value < 0 );
+		const negativeElementsRow = rowElements.filter( obj => obj.value.compare(0) < 0 );
 
 		let columnBasis = null;
 		if (negativeElementsRow.length === 1) {
@@ -246,7 +124,7 @@ const countNextStep = () => {
 
 			(negativeElementsRow.length === 0 ? rowElements : negativeElementsRow)
 				.forEach(data => {
-					thValue = parseIntFromTH(lastStep.table[0][data.index]);
+					const thValue = parseIntFromTH(lastStep.table[0][data.index]);
 
 					if (columnBasis === null) {
 						columnBasis = {
@@ -274,7 +152,7 @@ const countNextStep = () => {
 				return { value: row[1], index: index };
 			}
 		).slice(2);
-		const negativeElementsColumn = columnElements.filter( obj => obj.value < 0 );
+		const negativeElementsColumn = columnElements.filter( obj => obj.value.compare(0) < 0 );
 
 		let rowBasis = null;
 		if (negativeElementsColumn.length === 1) {
@@ -284,7 +162,7 @@ const countNextStep = () => {
 		} else if (negativeElementsColumn.length > 1) {
 
 			negativeElementsColumn.forEach(data => {
-				thValue = parseIntFromTH(lastStep.table[data.index][0]);
+				const thValue = parseIntFromTH(lastStep.table[data.index][0]);
 
 				if (rowBasis === null) {
 					rowBasis = {
@@ -340,19 +218,19 @@ const countNextStep = () => {
 
 		const tmpTable = lastStep.table.map( arr => arr.slice() );
 
-		tmpTable[rowBasis][columnBasis] = 1 / lambda;
+		tmpTable[rowBasis][columnBasis] = lambda.inverse();
 
 		tmpTable[rowBasis] = tmpTable[rowBasis].map( (value, index) => {
 			if (index === columnBasis || index === 0) {
 				return value;
 			} else {
-				return safeDivide(value, lambda);
+				return value.div( lambda );
 			}
 		});
 
 		for (let index = 1; index < tmpTable.length; index++) {
 			if (index !== rowBasis) {
-				tmpTable[index][columnBasis] = safeDivide(tmpTable[index][columnBasis], -lambda);
+				tmpTable[index][columnBasis] = tmpTable[index][columnBasis].div( lambda.neg() );
 			}
 		}
 
@@ -361,12 +239,12 @@ const countNextStep = () => {
 			for (let jndex = 1; jndex < tmpTable[index].length; jndex++) {
 				if (jndex === columnBasis) continue;
 
-				tmpTable[index][jndex] = lastStep.table[rowBasis][jndex] * tmpTable[index][columnBasis];
+				tmpTable[index][jndex] = lastStep.table[rowBasis][jndex].mul( tmpTable[index][columnBasis] );
 			}
 		}
 
 		nextStep.table = tmpTable;
-		const stepTable = generateTable(tmpTable);
+		const stepTable = generateTable( fractionTableToStrings(tmpTable) );
 		stepTable.classList.add(`step${nextStep.step}`);
 		stepTable.classList.add('secondary');
 		outputContainer.insertBefore( stepTable, stepButton );
@@ -394,7 +272,7 @@ const countNextStep = () => {
 			for (let jndex = 1; jndex < tmpTable[index].length; jndex++) {
 				if (jndex === lastStep.basis.column) continue;
 
-				tmpTable[index][jndex] = Number.parseFloat(lastStep.table[index][jndex]) + Number.parseFloat(penultimateStep.table[index][jndex]);
+				tmpTable[index][jndex] = lastStep.table[index][jndex].add( penultimateStep.table[index][jndex] );
 			}
 		}
 
@@ -403,7 +281,7 @@ const countNextStep = () => {
 		tmpTable[0][lastStep.basis.column] = tmp;
 
 		nextStep.table = tmpTable;
-		const stepTable = generateTable(tmpTable);
+		const stepTable = generateTable( fractionTableToStrings(tmpTable) );
 		stepTable.classList.add(`step${nextStep.step}`);
 		stepTable.classList.add('main');
 		outputContainer.insertBefore( stepTable, stepButton );
@@ -424,20 +302,20 @@ const checkTable = () => {
 
 	for (let index = 1; index < ELEMS_IN_ROW; index++) {
 		const element = lastStep.table[1][index];
-		if (element < 0) {
+		if (element.compare(0) < 0) {
 			notNegative = false;
 		}
-		if (Math.round(element) !== element) {
+		if (element.d !== 1) {
 			areInt = false;
 		}
 	}
 
 	for (let index = 2; index < lastStep.table.length; index++) {
 		const element = lastStep.table[index][1];
-		if (element < 0) {
+		if (element.compare(0) < 0) {
 			notNegative = false;
 		}
-		if (Math.round(element) !== element) {
+		if (element.d !== 1) {
 			areInt = false;
 		}
 	}
@@ -520,9 +398,9 @@ const appendNegativeRow = () => {
 		}
 	}
 
-	nextStep.table.push([`x${maximumIndex + 1}`, -1, -1, -1]);
+	nextStep.table.push([`x${maximumIndex + 1}`, new Fraction(-1), new Fraction(-1), new Fraction(-1)]);
 
-	const stepTable = generateTable(nextStep.table);
+	const stepTable = generateTable( fractionTableToStrings(nextStep.table) );
 	stepTable.classList.add(`step${nextStep.step}`);
 	stepTable.classList.add('negative-row');
 	outputContainer.insertBefore( stepTable, stepButton );
@@ -577,24 +455,14 @@ const appendFractionalRow = () => {
 	nextStep.table.push(
 		[`x${maximumIndex + 1}`]
 			.concat(
-				nextStep.table[rows[0].index].slice(1).map(element => Math.floor(element) - element)
+				nextStep.table[rows[0].index].slice(1).map( element => element.floor().sub(element) )
 			)
 	);
 
-	const stepTable = generateTable(nextStep.table);
+	const stepTable = generateTable( fractionTableToStrings(nextStep.table) );
 	stepTable.classList.add(`step${nextStep.step}`);
 	stepTable.classList.add('fractional-row');
 	outputContainer.insertBefore( stepTable, stepButton );
 
 	solveSteps.push( nextStep );
-}
-
-const rotateFractional = number => 1 / number;
-
-const safeDivide = (number1, number2) => {
-	if (Math.abs(number2) < 1) {
-		return number1 * rotateFractional(number2);
-	} else {
-		return number1 / number2;
-	}
 }
