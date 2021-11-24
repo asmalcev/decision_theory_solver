@@ -264,6 +264,8 @@ a.portfolio {
 	display: block;
 
 	padding: 1rem;
+	border: 1px solid var(--white);
+	border-radius: var(--bdrs);
 
 	font-size: 1.2rem;
 	text-decoration: none;
