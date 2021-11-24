@@ -5,10 +5,10 @@ import {
 } from './_fraction';
 import { generateTable } from './table';
 
-// const initTableContent = [
-// 	['', '1', 'x1', 'x2'],
-// 	['q', '', '', ''],
-// ];
+const initTableContent = [
+	['', '1', 'x1', 'x2'],
+	['q', '', '', ''],
+];
 
 // const initTableContent = [
 // 	['',   '1',  'x1', 'x2'],
@@ -18,15 +18,15 @@ import { generateTable } from './table';
 // 	['x5', '16', '1',   '2'],
 // ];
 
-const initTableContent = [
-	['',   '1',  'x1', 'x2'],
-	['q',  '0',  '-3',  '-1'],
-	['x3', '2',  '-1',  '2'],
-	['x4', '4',  '1',  '-1'],
-];
+// const initTableContent = [
+// 	['',   '1',  'x1', 'x2'],
+// 	['q',  '0',  '-3',  '-1'],
+// 	['x3', '2',  '-1',  '2'],
+// 	['x4', '4',  '1',  '-1'],
+// ];
 
 const deleteRow = index => {
-	delete initTableContent[index];
+	initTableContent.splice(index, 1);
 	loadInitTable();
 }
 
