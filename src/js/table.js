@@ -1,38 +1,11 @@
-// const initTableContent = [
-// 	['', '1', 'x1', 'x2'],
-// 	['q', '', '', ''],
-// ];
-
-const initTableContent = [
-	['',   '1',  'x1', 'x2'],
-	['q',  '0',  '-1',  '-3'],
-	['x3', '1',  '-1',  '1'],
-	['x4', '-6', '2',   '-4'],
-	['x5', '16', '1',   '2'],
-];
-
-// const initTableContent = [
-// 	['',   '1',  'x1', 'x2'],
-// 	['q',  '0',  '-3',  '-1'],
-// 	['x3', '2',  '-1',  '2'],
-// 	['x4', '4',  '1',  '-1'],
-// ];
-
-const deleteRow = index => {
-	delete initTableContent[index];
-	loadInitTable();
-}
-
-const addRow = () => {
-	initTableContent.push(['', '', '', '']);
-	loadInitTable();
-}
-
-const updateCell = e => {
-	initTableContent[e.target.dataset.row][e.target.dataset.column] = e.target.value;
-}
-
-const createInputWithValue = (value, row, column, type = 'text', placeholder = 'x') => {
+const createInputWithValue = ({
+	value,
+	row,
+	column,
+	updateCell,
+	type = 'text',
+	placeholder = 'x'
+}) => {
 	const input = document.createElement('input');
 
 	input.setAttribute('type', type);
@@ -51,7 +24,13 @@ const createInputWithValue = (value, row, column, type = 'text', placeholder = '
 	return input;
 }
 
-const generateTable = (tableContent, initial = false) => {
+const generateTable = ({
+	tableContent,
+	initial = false,
+	addRow = () => {},
+	deleteRow = () => {},
+	updateCell = () => {},
+}) => {
 	const table = document.createElement('div');
 	table.classList.add('grid-table');
 
@@ -63,7 +42,12 @@ const generateTable = (tableContent, initial = false) => {
 				cell.classList.add('headcell');
 
 				if (initial && cellIndex > 1) {
-					cell.appendChild( createInputWithValue(data, rowIndex, cellIndex) );
+					cell.appendChild(createInputWithValue({
+						value: data,
+						row: rowIndex,
+						column: cellIndex,
+						updateCell: updateCell,
+					}));
 				} else {
 					cell.innerHTML = cellIndex > 1 ? `-${data}` : data;
 				}
@@ -78,12 +62,24 @@ const generateTable = (tableContent, initial = false) => {
 				if (
 					initial && rowIndex != 1 && cellIndex === 0
 				) {
-					cell.appendChild( createInputWithValue(data, rowIndex, cellIndex) );
+					cell.appendChild(createInputWithValue({
+						value: data,
+						row: rowIndex,
+						column: cellIndex,
+						updateCell: updateCell
+					}));
 
 				} else if (
 					initial && cellIndex !== 0
 				) {
-					cell.appendChild( createInputWithValue(data, rowIndex, cellIndex, 'number', 0) );
+					cell.appendChild(createInputWithValue({
+						value: data,
+						row: rowIndex,
+						column: cellIndex,
+						updateCell: updateCell,
+						type: 'number',
+						placeholder: 0
+					}));
 
 				} else {
 					cell.innerHTML = String(data).slice(0, 8);
@@ -131,5 +127,4 @@ const generateTable = (tableContent, initial = false) => {
 
 export {
 	generateTable,
-	initTableContent
 };

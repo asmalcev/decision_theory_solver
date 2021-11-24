@@ -3,7 +3,41 @@ import {
 	tableToFraction,
 	fractionTableToStrings
 } from './_fraction';
-import { initTableContent, generateTable } from './table';
+import { generateTable } from './table';
+
+// const initTableContent = [
+// 	['', '1', 'x1', 'x2'],
+// 	['q', '', '', ''],
+// ];
+
+const initTableContent = [
+	['',   '1',  'x1', 'x2'],
+	['q',  '0',  '-1',  '-3'],
+	['x3', '1',  '-1',  '1'],
+	['x4', '-6', '2',   '-4'],
+	['x5', '16', '1',   '2'],
+];
+
+// const initTableContent = [
+// 	['',   '1',  'x1', 'x2'],
+// 	['q',  '0',  '-3',  '-1'],
+// 	['x3', '2',  '-1',  '2'],
+// 	['x4', '4',  '1',  '-1'],
+// ];
+
+const deleteRow = index => {
+	delete initTableContent[index];
+	loadInitTable();
+}
+
+const addRow = () => {
+	initTableContent.push(['', '', '', '']);
+	loadInitTable();
+}
+
+const updateCell = e => {
+	initTableContent[e.target.dataset.row][e.target.dataset.column] = e.target.value;
+}
 
 const tableContainer  = document.querySelector('#init-table-container');
 const outputContainer = document.querySelector('#output-container');
@@ -23,7 +57,9 @@ tableContainer.addEventListener('submit', e => {
 
 	tableToFraction(initTableContent);
 
-	const stepTable = generateTable( fractionTableToStrings(initTableContent) );
+	const stepTable = generateTable({
+		tableContent: fractionTableToStrings(initTableContent)
+	});
 	stepTable.classList.add('step0');
 	stepTable.classList.add('main');
 	outputContainer.insertBefore( stepTable, stepButton );
@@ -41,7 +77,13 @@ tableContainer.addEventListener('submit', e => {
 
 const loadInitTable = () => {
 	tableContainer.innerHTML = '';
-	tableContainer.appendChild( generateTable(initTableContent, true) );
+	tableContainer.appendChild( generateTable({
+		tableContent: initTableContent,
+		initial: true,
+		addRow: addRow,
+		deleteRow: deleteRow,
+		updateCell: updateCell
+	}) );
 
 	const submitButton = document.createElement('button');
 	submitButton.setAttribute('type', 'submit');
@@ -244,7 +286,9 @@ const countNextStep = () => {
 		}
 
 		nextStep.table = tmpTable;
-		const stepTable = generateTable( fractionTableToStrings(tmpTable) );
+		const stepTable = generateTable({
+			tableContent: fractionTableToStrings(tmpTable)
+		});
 		stepTable.classList.add(`step${nextStep.step}`);
 		stepTable.classList.add('secondary');
 		outputContainer.insertBefore( stepTable, stepButton );
@@ -281,7 +325,9 @@ const countNextStep = () => {
 		tmpTable[0][lastStep.basis.column] = tmp;
 
 		nextStep.table = tmpTable;
-		const stepTable = generateTable( fractionTableToStrings(tmpTable) );
+		const stepTable = generateTable({
+			tableContent: fractionTableToStrings(tmpTable)
+		});
 		stepTable.classList.add(`step${nextStep.step}`);
 		stepTable.classList.add('main');
 		outputContainer.insertBefore( stepTable, stepButton );
@@ -400,7 +446,9 @@ const appendNegativeRow = () => {
 
 	nextStep.table.push([`x${maximumIndex + 1}`, new Fraction(-1), new Fraction(-1), new Fraction(-1)]);
 
-	const stepTable = generateTable( fractionTableToStrings(nextStep.table) );
+	const stepTable = generateTable({
+		tableContent: fractionTableToStrings(nextStep.table)
+	});
 	stepTable.classList.add(`step${nextStep.step}`);
 	stepTable.classList.add('negative-row');
 	outputContainer.insertBefore( stepTable, stepButton );
@@ -459,7 +507,9 @@ const appendFractionalRow = () => {
 			)
 	);
 
-	const stepTable = generateTable( fractionTableToStrings(nextStep.table) );
+	const stepTable = generateTable({
+		tableContent: fractionTableToStrings(nextStep.table)
+	});
 	stepTable.classList.add(`step${nextStep.step}`);
 	stepTable.classList.add('fractional-row');
 	outputContainer.insertBefore( stepTable, stepButton );
